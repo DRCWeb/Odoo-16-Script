@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Creacion Ruta Absoluta
+directorio_destino="/home/drcode/Documentos/Deployment/Odoo/Source Code & Installation/odoo-one/addons"
+
+# Solicitar al usuario el nombre del módulo
+read -p "Ingrese el nombre del módulo: " modulo_nombre
+
+# Definir la ruta completa para el módulo
+modulo_path="$directorio_destino/$modulo_nombre"
+
+# Carpetas y archivos requeridos
+carpetas=("controllers" "models" "views" "security" "data" "static" "tests")
+archivos=("__init__.py" "controllers/__init__.py" "models/__init__.py" "views/__init__.py" "security/__init__.py" "data/__init__.py" "static/__init__.py" "tests/__init__.py" "__manifest__.py" "views/views.xml" "views/templates.xml")
+
+# Crear estructura de carpetas
+mkdir -p "$modulo_path" || exit 1
+cd "$modulo_path" || exit 1
+
+# Crear carpetas necesarias
+for carpeta in "${carpetas[@]}"; do
+    mkdir -p "$carpeta"
+done
+
+# Crear archivos necesarios
+for archivo in "${archivos[@]}"; do
+    touch "$archivo"
+done
+
+# Contenido para __manifest__.py
+cat <<EOF > __manifest__.py
+{
+    'name': '$modulo_nombre',
+    'version': '16.0.1.0.0',
+    'depends': ['base'],
+    'data': [
+        'views/views.xml',
+        'views/templates.xml',
+        'security/ir.model.access.csv',
+    ],
+    'application': True,
+}
+EOF
+
+# Mensaje de éxito
+echo "Estructura de carpeta para el módulo $modulo_nombre creada exitosamente con el archivo __manifest__.py y archivos de vistas."
+
+# Apertura de editor de código
+read -p "¿Desea abrir el editor de código? (y/n): " choice
+
+if [ "$choice" == "y" ]; then
+    # Abre Visual Studio Code insiders con el módulo
+    code-insiders "$modulo_path"
+    echo "El editor de código se ha abierto con el módulo $modulo_nombre."
+else
+    echo "Puede abrir el módulo más tarde ejecutando 'code-insiders $modulo_path'."
+fi
+
